@@ -1,12 +1,70 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <style>
-      body { margin: 0; display: flex; justify-content: center; background: #222; }
+        body { margin: 0; overflow: hidden; background: #000; }
+        canvas { display: block; }
     </style>
-  </head>
-  <body>
-    <script src="sketch.js"></script>
-  </body>
+</head>
+<body>
+    <script>
+        let score = 0, timer = 15, state = "PLAY";
+        let mangroves = [];
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+        }
+
+        function draw() {
+            if (state === "PLAY") {
+                background(135, 206, 235); // Sky
+                
+                // Draw Mud Zone
+                noStroke();
+                fill(80, 60, 40);
+                rect(0, height * 0.6, width, height * 0.4);
+
+                // Draw Trees
+                for (let m of mangroves) {
+                    stroke(40, 30, 10);
+                    strokeWeight(4);
+                    line(m.x, m.y, m.x, m.y - 20);
+                    noStroke();
+                    fill(34, 139, 34);
+                    ellipse(m.x, m.y - 25, 15, 20);
+                }
+
+                // UI
+                fill(0);
+                textSize(24);
+                textAlign(LEFT);
+                text("Score: " + score, 20, 40);
+                text("Time: " + timer, 20, 70);
+
+                if (frameCount % 60 == 0 && timer > 0) timer--;
+                if (timer <= 0) state = "END";
+            } else {
+                background(score >= 15 ? 40 : 150, 20, 20);
+                fill(255);
+                textAlign(CENTER);
+                textSize(32);
+                text(score >= 15 ? "VILLAGE SAVED!" : "VILLAGE FLOODED!", width/2, height/2);
+                textSize(18);
+                text("Final Score: " + score, width/2, height/2 + 40);
+                text("CLICK TO RESTART", width/2, height/2 + 80);
+            }
+        }
+
+        function mousePressed() {
+            if (state === "PLAY" && mouseY > height * 0.6) {
+                mangroves.push({x: mouseX, y: mouseY});
+                score++;
+            } else if (state === "END") {
+                score = 0; timer = 15; mangroves = []; state = "PLAY";
+            }
+        }
+    </script>
+</body>
 </html>
