@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #222; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
         canvas { display: block; }
     </style>
 </head>
@@ -18,65 +18,71 @@
         function setup() {
             createCanvas(windowWidth, windowHeight);
             
-            // Create Name Input
+            // Setup Name Input UI
             input = createInput();
             input.position(width/2 - 80, height/2);
-            input.attribute('placeholder', 'Enter Your Name');
+            input.attribute('placeholder', 'Your Name');
             
-            btn = createButton('START');
+            btn = createButton('ENTER');
             btn.position(input.x + 60, input.y + 35);
-            btn.mousePressed(submitName);
+            btn.mousePressed(goToMessage);
         }
 
-        function submitName() {
+        function goToMessage() {
             if (input.value() !== "") {
                 playerName = input.value();
                 input.hide();
                 btn.hide();
-                state = "MESSAGE";
+                state = "MESSAGE"; // Switch to message screen
             }
         }
 
         function draw() {
             if (state === "NAME_INPUT") {
-                background(20, 40, 20);
+                background(10, 20, 10);
                 fill(255);
                 textAlign(CENTER);
-                textSize(24);
-                text("INDUS COAST GUARDIAN", width/2, height/2 - 50);
+                textSize(28);
+                text("COASTAL GUARDIAN REGISTRATION", width/2, height/2 - 60);
             } 
             else if (state === "MESSAGE") {
-                background(30, 60, 30);
+                background(20, 50, 20);
                 fill(255);
                 textAlign(CENTER);
-                textSize(18);
-                text("Welcome, Guardian " + playerName + "!", width/2, height/2 - 60);
-                fill(200, 255, 200);
-                text("Mangroves are in danger.", width/2, height/2 - 20);
-                text("We need to save them for the sake of", width/2, height/2 + 10);
-                text("people living there and fishes!", width/2, height/2 + 40);
+                
+                textSize(30);
                 fill(255, 204, 0);
-                text("CLICK ANYWHERE TO START PLANTING", width/2, height/2 + 100);
+                text("HELLO, GUARDIAN " + playerName.toUpperCase() + "!", width/2, height/2 - 100);
+                
+                textSize(22);
+                fill(255);
+                text("Mangroves are in danger.", width/2, height/2 - 40);
+                text("We need to save them for the sake of", width/2, height/2);
+                text("people living there and fishes!", width/2, height/2 + 40);
+                
+                textSize(18);
+                fill(150, 255, 150);
+                text(">> CLICK ANYWHERE TO START THE 10s CHALLENGE <<", width/2, height/2 + 120);
             }
             else if (state === "PLAY") {
-                drawGame();
+                playGame();
             } 
             else if (state === "END") {
-                drawResult();
+                showResults();
             }
         }
 
-        function drawGame() {
+        function playGame() {
             background(135, 206, 235); // Sky
             
-            // Draw Mud Zone
+            // Mud Zone (Interactable area)
             noStroke();
-            fill(80, 60, 40);
+            fill(90, 70, 50);
             rect(0, height * 0.6, width, height * 0.4);
 
-            // Draw Trees
+            // Render Mangroves
             for (let m of mangroves) {
-                stroke(40, 30, 10);
+                stroke(50, 40, 20);
                 strokeWeight(3);
                 line(m.x, m.y, m.x, m.y - 15);
                 noStroke();
@@ -84,39 +90,44 @@
                 ellipse(m.x, m.y - 18, 12, 18);
             }
 
-            // HUD
+            // Status Bar
+            fill(255);
+            rect(0, 0, width, 50);
             fill(0);
-            textSize(20);
             textAlign(LEFT);
-            text("Guardian: " + playerName, 20, 40);
-            text("Score: " + score, 20, 70);
+            textSize(18);
+            text("Guardian: " + playerName, 20, 32);
+            textAlign(CENTER);
+            text("Score: " + score, width/2, 32);
             textAlign(RIGHT);
-            text("Time: " + timer + "s", width - 20, 40);
+            text("TIME LEFT: " + timer + "s", width - 20, 32);
 
             if (frameCount % 60 == 0 && timer > 0) timer--;
             if (timer <= 0) state = "END";
         }
 
-        function drawResult() {
-            background(score >= 15 ? [20, 60, 20] : [80, 20, 20]);
+        function showResults() {
+            background(score >= 15 ? [0, 100, 0] : [150, 0, 0]);
             fill(255);
             textAlign(CENTER);
-            textSize(32);
-            text(score >= 15 ? "VILLAGE SAVED!" : "VILLAGE FLOODED!", width/2, height/2 - 40);
-            textSize(18);
-            text("Guardian " + playerName + ", you planted " + score + " trees.", width/2, height/2 + 10);
-            fill(255, 204, 0);
-            text("CLICK TO RESTART", width/2, height/2 + 70);
+            textSize(40);
+            text(score >= 15 ? "MISSION SUCCESS!" : "MISSION FAILED!", width/2, height/2 - 40);
+            
+            textSize(20);
+            text(playerName + ", you planted " + score + " mangroves.", width/2, height/2 + 20);
+            
+            fill(255, 255, 0);
+            text("CLICK TO RESTART", width/2, height/2 + 80);
         }
 
         function mousePressed() {
             if (state === "MESSAGE") {
-                state = "PLAY";
+                state = "PLAY"; // Now the game starts
             } else if (state === "PLAY" && mouseY > height * 0.6) {
                 mangroves.push({x: mouseX, y: mouseY});
                 score++;
             } else if (state === "END") {
-                // Restart logic
+                // Fully reset for the next player
                 score = 0; 
                 timer = 10; 
                 mangroves = []; 
